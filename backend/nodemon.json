@@ -1,0 +1,7 @@
+{
+  "ignore": [
+    "./dist",
+    "./test.json"
+  ],
+  "ext": "ts, mts, cts, json, graphql"
+}

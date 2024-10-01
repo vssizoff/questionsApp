@@ -1,0 +1,4 @@
+{
+  "ignore": [],
+  "ext": "ts, mts, cts, json, graphql, vue, Dockerfile, conf"
+}

@@ -1,0 +1,7 @@
+./node_modules
+./dist
+./newsAttachments
+./.env
+./Dockerfile
+./nodemon.json
+./package-lock.json

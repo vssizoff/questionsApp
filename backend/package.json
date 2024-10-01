@@ -1,0 +1,22 @@
+{
+  "name": "test",
+  "version": "0.0.0",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node --es-module-specifier-resolution=node ./dist/main.js",
+    "dev": "nodemon --exec \"npm start\""
+  },
+  "type": "module",
+  "dependencies": {
+    "kysely": "^0.27.3",
+    "pg": "^8.11.5",
+    "sbackend": "^0.2.8"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.6",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.1.2",
+    "typescript": "^5.4.5"
+  }
+}
