@@ -11,13 +11,15 @@ export interface UsersTable {
 export interface QuestionsTable {
     id : Generated<number>;
     userId: number;
+    count: ColumnType<number, number | undefined, number>;
 }
 
 export interface TextsTable {
     id: Generated<number>;
     questionId: number;
     text: string;
-    status: number;
+    status: ColumnType<number, number | undefined, number>;
+    number: number;
 }
 
 export interface Database {
