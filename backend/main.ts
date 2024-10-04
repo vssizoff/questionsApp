@@ -2,6 +2,7 @@ import "dotenv/config";
 import SBackend from "sbackend";
 import {setupEnv} from "./sql/index.sql.js";
 import user from "./user.js";
+import admin from "./admin.js";
 
 async function main() {
     await setupEnv();
@@ -24,6 +25,7 @@ async function main() {
     });
 
     app.addHandlers(user);
+    app.addHandlers(admin);
 
     app.get("/teapot", (request, response) => {
         response.status(418);

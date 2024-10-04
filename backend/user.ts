@@ -1,5 +1,5 @@
 import {buildHandlers} from "sbackend";
-import {editMessage, getUserMessages, postMessage} from "./sql/messages.sql.js";
+import {editMessage, emitter, getUserMessages, postMessage} from "./sql/messages.sql.js";
 import {logIn} from "./sql/user.sql.js";
 
 export default buildHandlers({
@@ -14,7 +14,7 @@ export default buildHandlers({
         }
     },
     post: {
-        async "/log-in"(request, response) {
+        async "/user/log-in"(request, response) {
             if (typeof request.body !== "object" || typeof request.body.username !== "string" || typeof request.body.class !== "string") {
                 response.status(400);
                 response.end();
@@ -22,7 +22,7 @@ export default buildHandlers({
             }
             response.end((await logIn(request.body.username, request.body.class)).toString());
         },
-        async "/user/message"(request, response) {
+        async "/user/send"(request, response) {
             if (typeof request.body !== "object" || typeof request.body.userId !== "number" || typeof request.body.text !== "string") {
                 response.status(400);
                 response.end();
@@ -53,9 +53,18 @@ export default buildHandlers({
         }
     },
     ws: {
-        async "/user"(request, response) {
-            let connection = await response.accept();
-
+        async "/user/:userId"(request, response) {
+            if (typeof request.params !== "object" || typeof request.params.userId !== "string") {
+                response.reject(409);
+                return;
+            }
+            const connection = await response.accept(), userId = Number(request.params.userId);
+            emitter.on("statusChange", message => {
+                if (message.userId === userId) connection.send(JSON.stringify({event: "statusChange", message}));
+            });
+            emitter.on("adminEdit", message => {
+                if (message.userId === userId) connection.send(JSON.stringify({event: "edit", message}));
+            });
         }
     }
 });

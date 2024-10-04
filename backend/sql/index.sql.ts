@@ -18,7 +18,7 @@ export interface TextsTable {
     id: Generated<number>;
     questionId: number;
     text: string;
-    status: ColumnType<number, number | undefined, number>;
+    status: ColumnType<-2 | -1 | 0 | 1 | 2, -2 | -1 | 0 | 1 | 2 | undefined, -2 | -1 | 0 | 1 | 2>;
     number: number;
 }
 
