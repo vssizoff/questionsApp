@@ -12,10 +12,14 @@ export default defineComponent({
     question: {
       type: Object as PropType<MessageType>,
       required: true
+    },
+    pending: {
+      type: Boolean,
+      default: false
     }
   },
   emits: {
-    change(str: string) {return true;}
+    edit(_: string) {return true;}
   },
   data() {
     return {
@@ -28,7 +32,7 @@ export default defineComponent({
       let textStatuses = this.question.texts.map(({status}) => status);
       return textStatuses.includes(1) ? 1 : textStatuses.includes(2) ? 2 : textStatuses.includes(-2) ? -2 : textStatuses.includes(0) ? 0 : -1;
     },
-    text(): string | [string, string] {
+    text(): string /*| [string, string]*/ {
       return this.status === 1 ? this.question.texts.filter(({status}) => status === 1).sort(({id: id0}, {id: id1}) => id1 - id0)[0].text : this.question.texts[this.question.texts.length - 1].text;
     }
   },
@@ -50,7 +54,7 @@ export default defineComponent({
       <Textarea v-model="editText"/>
       <span>
         <Button severity="danger" @click="editing = false; editText = typeof text === 'string' ? text : text[0]">Отменть</Button>
-        <Button severity="success" @click="$emit('change', editText)">Сохранить</Button>
+        <Button severity="success" @click="$emit('edit', editText); editing = false" :disabled="pending || !editText.length">Сохранить</Button>
       </span>
     </div>
   </Panel>
