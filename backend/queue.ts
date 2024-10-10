@@ -11,7 +11,7 @@ export class Queue<Type> {
     }
 
     public constructor(public file: string) {
-        if (!fs.existsSync(file)) fs.writeFileSync(file, "");
+        if (!fs.existsSync(file)) fs.writeFileSync(file, "[]");
         this.arr = JSON.parse(fs.readFileSync(file, {encoding: "utf8"}));
     }
 

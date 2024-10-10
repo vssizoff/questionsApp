@@ -4,7 +4,7 @@ export default async function () {
     try {
         await db.schema.createTable("users")
             .addColumn("id", "serial", cb => cb.primaryKey().unique())
-            .addColumn("username", "varchar(50)", cb => cb.notNull().unique())
+            .addColumn("username", "varchar(50)", cb => cb.notNull())
             .addColumn("class", "varchar(50)").execute();
     } catch (error) {}
     try {
