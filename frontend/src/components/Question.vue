@@ -64,20 +64,22 @@ export default defineComponent({
 p {
   cursor: pointer;
   font-size: 18px;
-  display: inline-block;
+  display: inline-flex;
+  overflow-wrap: anywhere;
   transition: transform .3s ease-in-out;
+  text-align: center;
 
   @media (hover: hover) {
     &:hover {
-      transform: scale(1.2);
+      transform: scale(1.02);
     }
   }
   &:focus-visible {
-    transform: scale(1.3);
+    transform: scale(1.05);
   }
 
   &:active {
-    transform: scale(1.4);
+    transform: scale(1.05);
   }
 }
 

@@ -9,10 +9,11 @@ import Panel from "primevue/panel";
 import Question from "@/components/Question.vue";
 import PendingIndicator from "@/components/PendingIndicator.vue";
 import Toast from "primevue/toast";
+import TextArea from "@/components/TextArea.vue";
 
 export default defineComponent({
   name: "UserView",
-  components: {PendingIndicator, Question, UserLogin, Button, Dialog, Textarea, Panel, Toast},
+  components: {TextArea, PendingIndicator, Question, UserLogin, Button, Dialog, Textarea, Panel, Toast},
   data() {
     return {
       name: "",
@@ -20,7 +21,8 @@ export default defineComponent({
       pending: false,
       questions: [] as Array<MessageType>,
       text: "",
-      closeSocket: () => {}
+      closeSocket: () => {},
+      mobile: window.matchMedia('(width < 800px)').matches
     }
   },
   computed: {
@@ -35,6 +37,7 @@ export default defineComponent({
       this.closeSocket();
       await this.setup();
     });
+    window.addEventListener("resize", () => {this.mobile = window.matchMedia('(width < 800px)').matches;});
   },
   methods: {
     async send() {
@@ -96,9 +99,9 @@ export default defineComponent({
   <main v-if="userId !== -1">
     <div>
       <h2>Создать вопрос</h2>
-      <Textarea v-model="text"/>
+      <TextArea v-model="text"/>
       <Button @click="send" :disabled="!text.length || pending">Отправить</Button>
-      <span>
+      <span v-if="!mobile">
         <Button severity="danger" @click="userId = -1" v-if="userId !== -1" class="logout">Выйти</Button>
       </span>
     </div>
@@ -107,6 +110,9 @@ export default defineComponent({
       <Question v-for="(question, index) in questions" :question="question" :pending="pending" @edit="edit(index, $event)"/>
     </div>
   </main>
+  <span v-if="mobile">
+    <Button severity="danger" @click="userId = -1" v-if="userId !== -1" class="logout">Выйти</Button>
+  </span>
   <PendingIndicator v-if="pending && userId !== -1"/>
 </template>
 
@@ -115,10 +121,19 @@ main {
   display: flex;
   gap: 40px;
 
+  @media (width < 800px) {
+    flex-direction: column;
+  }
+
   & > div {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 50%;
+
+    @media (width < 800px) {
+      width: 100%;
+    }
   }
 }
 
