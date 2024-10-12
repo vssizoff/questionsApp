@@ -7,7 +7,7 @@ import Textarea from "primevue/textarea";
 
 export default defineComponent({
   name: "Question",
-  components: {Panel, Button, Textarea},
+  components: {Textarea, Panel, Button},
   props: {
     question: {
       type: Object as PropType<MessageType>,
@@ -51,7 +51,7 @@ export default defineComponent({
   <Panel :header="`№${question.id} ${status === -1 ? 'Отклонено' : status === 0 ? 'Ожидает просмотра админом' : status === 1 ? 'Разрешено' : 'Редактирование ожидает просмотра админом'}`">
     <p @click="editing = !editing">{{text}}</p>
     <div class="editor" v-if="editing">
-      <Textarea v-model="editText"/>
+      <Textarea v-model="editText" autoResize/>
       <span>
         <Button severity="danger" @click="editing = false; editText = typeof text === 'string' ? text : text[0]">Отменть</Button>
         <Button severity="success" @click="$emit('edit', editText); editing = false" :disabled="pending || !editText.length">Сохранить</Button>
