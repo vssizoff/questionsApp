@@ -1,4 +1,4 @@
-import type {MessageType} from "@/api/index.js";
+import {type MessageType, SERVER_BASE_URL} from "@/api/index.js";
 import axios from "axios";
 import {ref, watch} from "vue";
 
@@ -35,4 +35,18 @@ export async function acceptMessage(id: number, password: string = adminPassword
 export async function rejectMessage(id: number, password: string = adminPassword.value): Promise<boolean> {
     let data = await axios.patch<void>("/admin/reject", {id, password});
     return data.status === 200;
+}
+
+export function subscribeAdmin(statusChangeHandler: (_: MessageType) => void, adminEditHandler: (_: MessageType) => void, userSendHandler: (_: MessageType) => void, userEditHandler: (_: MessageType) => void): () => void {
+    let socket = new WebSocket(`${SERVER_BASE_URL}/admin`);
+    socket.onmessage = (data) => {
+        let {event, message} = JSON.parse(data.data);
+        if (event === "statusChange") statusChangeHandler(message);
+        if (event === "adminEdit") adminEditHandler(message);
+        if (event === "userSend") userSendHandler(message);
+        if (event === "userEdit") userEditHandler(message);
+    };
+    return () => {
+        socket.close();
+    };
 }
