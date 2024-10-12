@@ -2,7 +2,7 @@
 import {defineComponent, watch} from "vue";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import {editMessage, getMessages, type MessageType, sendMessage, subscribeUser, userId} from "@/api/user.js";
+import {editMessage, getMessages, sendMessage, subscribeUser, userId} from "@/api/user.js";
 import UserLogin from "@/views/user/UserLogin.vue";
 import Textarea from "primevue/textarea";
 import Panel from "primevue/panel";
@@ -10,6 +10,7 @@ import Question from "@/components/Question.vue";
 import PendingIndicator from "@/components/PendingIndicator.vue";
 import Toast from "primevue/toast";
 import TextArea from "@/components/TextArea.vue";
+import type {MessageType} from "@/api/index.js";
 
 export default defineComponent({
   name: "UserView",
@@ -38,6 +39,9 @@ export default defineComponent({
       await this.setup();
     });
     window.addEventListener("resize", () => {this.mobile = window.matchMedia('(width < 800px)').matches;});
+  },
+  unmounted() {
+    this.closeSocket();
   },
   methods: {
     async send() {

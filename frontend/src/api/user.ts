@@ -1,7 +1,6 @@
 import axios from "axios";
 import {ref, watch} from "vue";
-// import WebSocket from "@vite/vitejs-ws";
-import {SERVER_BASE_URL} from "@/api/serverConfig.js";
+import {type MessageType, SERVER_BASE_URL} from "@/api/index.js";
 
 export const userId = ref<number>(Number(localStorage.getItem("userId") ?? -1));
 watch(userId, () => {
@@ -12,16 +11,6 @@ export async function logIn(username: string, class_: string): Promise<void> {
     let data = await axios.post<number>("/user/log-in", {username, class: class_});
     userId.value = data.data;
 }
-
-export type MessageType = {
-    id: number,
-    userId: number,
-    texts: Array<{
-        id: number,
-        text: string,
-        status: number
-    }>;
-};
 
 export async function getMessages(userID: number = userId.value): Promise<Array<MessageType>> {
     let data = await axios.get<Array<MessageType>>(`/user/messages/${userID}`);
@@ -42,7 +31,6 @@ export function subscribeUser(statusChangeHandler: (_: MessageType) => void, adm
     let socket = new WebSocket(`${SERVER_BASE_URL}/user/${userID}`);
     socket.onmessage = (data) => {
         let {event, message} = JSON.parse(data.data);
-        console.log(JSON.parse(data.data))
         if (event === "statusChange") statusChangeHandler(message);
         if (event === "edit") adminEditHandler(message);
     };
