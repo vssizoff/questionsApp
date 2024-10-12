@@ -24,6 +24,9 @@ export default defineComponent({
     error() {
       this.$toast.add({summary: "Error happened. Is your admin password correct?", severity: "error"});
     },
+    removeQuestion(index: number) {
+      if (!this.questions[index].texts.filter(({status}) => status === 0).length) this.questions.splice(index, 1);
+    },
     async edit(index: number, text: string) {
       this.pending = true;
       let successful = await editMessage(this.questions[index].id, text);
@@ -37,23 +40,25 @@ export default defineComponent({
       }
       else this.error();
     },
-    async accept(index: number) {
+    async accept(index: number, textIndex: number) {
       this.pending = true;
-      let successful = await acceptMessage(this.questions[index].id);
+      let successful = await acceptMessage(this.questions[index].texts[textIndex].id);
       this.pending = false;
       if (successful) {
         this.$toast.add({summary: "Request accepted", severity: "success"});
-        this.questions.splice(index, 1);
+        this.questions[index].texts[textIndex].status = this.questions[index].texts[textIndex].status === 2 || this.questions[index].texts[textIndex].status === -2 ? 2 : 1;
+        this.removeQuestion(index);
       }
       else this.error();
     },
-    async reject(index: number) {
+    async reject(index: number, textIndex: number) {
       this.pending = true;
-      let successful = await rejectMessage(this.questions[index].id);
+      let successful = await rejectMessage(this.questions[index].texts[textIndex].id);
       this.pending = false;
       if (successful) {
         this.$toast.add({summary: "Request rejected", severity: "success"});
-        this.questions.splice(index, 1);
+        this.questions[index].texts[textIndex].status = this.questions[index].texts[textIndex].status === 2 || this.questions[index].texts[textIndex].status === -2 ? -2 : -1;
+        this.removeQuestion(index);
       }
       else this.error();
     }
@@ -64,12 +69,8 @@ export default defineComponent({
 <template>
   <div class="root">
     <main>
-      <AdminQuestion v-for="(question, index) in questions" :question="question" :pending="pending" @edit="edit(index, $event)" v-model:editing="question.editing" class="question">
-        <div v-if="!question.editing" class="buttons">
-          <Button severity="danger" @click="reject(index)">Отклонить</Button>
-          <Button severity="success" @click="accept(index)">Разрешить</Button>
-        </div>
-      </AdminQuestion>
+      <h2 v-if="!questions.length" v-text="'<Пусто>'"/>
+      <AdminQuestion v-for="(question, index) in questions" :question="question" :pending="pending" @edit="edit(index, $event)" @accept="accept(index, $event)" @reject="reject(index, $event)"/>
     </main>
   </div>
 </template>
@@ -87,11 +88,5 @@ export default defineComponent({
     flex-direction: column;
     gap: 20px;
   }
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
 }
 </style>

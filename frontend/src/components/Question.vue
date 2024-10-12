@@ -3,11 +3,11 @@ import {defineComponent, type PropType} from 'vue'
 import type {MessageType} from "@/api/index.js";
 import Panel from "primevue/panel";
 import Button from "primevue/button";
-import Textarea from "primevue/textarea";
+import TextArea from "@/components/TextArea.vue";
 
 export default defineComponent({
   name: "Question",
-  components: {Textarea, Panel, Button},
+  components: {TextArea, Panel, Button},
   props: {
     question: {
       type: Object as PropType<MessageType>,
@@ -59,7 +59,7 @@ export default defineComponent({
   <Panel :header="`№${question.id} ${status === -1 ? 'Отклонено' : status === 0 ? 'Ожидает просмотра админом' : status === 1 ? 'Разрешено' : 'Редактирование ожидает просмотра админом'}`">
     <p @click="editing_ = !editing_">{{text}}</p>
     <div class="editor" v-if="editing_">
-      <Textarea v-model="editText" autoResize/>
+      <TextArea v-model="editText" autoResize/>
       <span>
         <Button severity="danger" @click="editing_ = false; editText = typeof text === 'string' ? text : text[0]">Отменть</Button>
         <Button severity="success" @click="$emit('edit', editText); editing_ = false" :disabled="pending || !editText.length">Сохранить</Button>

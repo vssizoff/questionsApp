@@ -1,15 +1,89 @@
 <script lang="ts">
-import {defineComponent} from 'vue'
+import {defineComponent, type PropType} from 'vue'
+import type {MessageType} from "@/api/index.js";
+import Panel from "primevue/panel";
+import Button from "primevue/button";
+import TextArea from "@/components/TextArea.vue";
 
 export default defineComponent({
-  name: "AdminQuestion"
+  name: "AdminQuestion",
+  components: {TextArea, Panel, Button},
+  props: {
+    question: {
+      type: Object as PropType<MessageType>,
+      required: true
+    },
+    pending: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: {
+    edit(_: string) {return true;},
+    accept(_: number) {return true;},
+    reject(_: number) {return true;}
+  },
+  data() {
+    return {
+      editText: "",
+      editing: false
+    };
+  },
+  methods: {
+    header(id: number, status: number): string {
+      return `№${id} ${status === -1 || status === -2 ? 'Отклонено' : status === 0 ? 'Ожидает просмотра админом' : status === 1 || status === 2 ? 'Разрешено' : 'Редактирование ожидает просмотра админом'}`;
+    }
+  }
 })
 </script>
 
 <template>
-
+  <header>
+    <h2>№{{question.id}}</h2>
+    <Button @click="editing = !editing">Редактировать</Button>
+  </header>
+  <Panel class="editor" v-if="editing" header="Редактирование">
+    <TextArea v-model="editText" autoResize/>
+    <span>
+      <Button severity="danger" @click="editing = false">Отменть</Button>
+      <Button severity="success" @click="$emit('edit', editText); editing = false" :disabled="pending || !editText.length">Сохранить</Button>
+    </span>
+  </Panel>
+  <Panel v-for="({status, id, text}, index) in question.texts" :header="header(id, status)">
+    <p>{{text}}</p>
+    <div class="buttons">
+      <Button severity="danger" :disabled="pending" @click="$emit('reject', index)">Отклонить</Button>
+      <Button severity="success" :disabled="pending" @click="$emit('accept', index)">Разрешить</Button>
+    </div>
+  </Panel>
 </template>
 
 <style scoped>
+header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  textarea {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  span {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}
 </style>

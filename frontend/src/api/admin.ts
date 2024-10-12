@@ -33,6 +33,6 @@ export async function acceptMessage(id: number, password: string = adminPassword
 }
 
 export async function rejectMessage(id: number, password: string = adminPassword.value): Promise<boolean> {
-    let data = await axios.patch<void>("/admin/accept", {id, password});
+    let data = await axios.patch<void>("/admin/reject", {id, password});
     return data.status === 200;
 }
