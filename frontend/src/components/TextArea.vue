@@ -54,5 +54,6 @@ export default defineComponent({
 <style scoped>
 textarea {
   height: v-bind(height);
+  resize: none;
 }
 </style>
