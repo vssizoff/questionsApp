@@ -43,8 +43,8 @@ export function subscribeAdmin(statusChangeHandler: (_: MessageType) => void, ad
         let {event, message} = JSON.parse(data.data);
         if (event === "statusChange") statusChangeHandler(message);
         if (event === "adminEdit") adminEditHandler(message);
-        if (event === "userSend") userSendHandler(message);
-        if (event === "userEdit") userEditHandler(message);
+        if (event === "send") userSendHandler(message);
+        if (event === "edit") userEditHandler(message);
     };
     return () => {
         socket.close();

@@ -9,10 +9,6 @@ export default defineComponent({
 </script>
 
 <template>
-  <Toast/>
-  <RouterView />
+  <Toast position="bottom-right"/>
+  <RouterView/>
 </template>
-
-<style scoped>
-
-</style>

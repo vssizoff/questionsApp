@@ -51,10 +51,7 @@ export default defineComponent({
   </Panel>
   <Panel v-for="({status, id, text}, index) in question.texts" :header="header(id, status)">
     <p>{{text}}</p>
-    <div class="buttons">
-      <Button severity="danger" :disabled="pending" @click="$emit('reject', index)">Отклонить</Button>
-      <Button severity="success" :disabled="pending" @click="$emit('accept', index)">Разрешить</Button>
-    </div>
+    <slot :index="index" :text="text" :id="id" :status="status"/>
   </Panel>
 </template>
 
@@ -63,11 +60,6 @@ header {
   display: flex;
   align-items: center;
   gap: 20px;
-}
-
-.buttons {
-  display: flex;
-  gap: 10px;
 }
 
 .editor {

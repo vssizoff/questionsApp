@@ -66,7 +66,7 @@ export default buildHandlers({
         async "/admin"(request, response) {
             let connection = await response.accept();
             emitter.on("statusChange", message => connection.send(JSON.stringify({event: "statusChange", message})));
-            emitter.on("adminEdit", message => connection.send(JSON.stringify({event: "edit", message})));
+            emitter.on("adminEdit", message => connection.send(JSON.stringify({event: "adminEdit", message})));
             emitter.on("userSend", message => connection.send(JSON.stringify({event: "send", message})));
             emitter.on("userEdit", message => connection.send(JSON.stringify({event: "edit", message})));
         }
