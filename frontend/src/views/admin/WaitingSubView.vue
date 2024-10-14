@@ -15,7 +15,9 @@ export default defineComponent({
     return {
       pending: false,
       questions: [] as Array<MessageType>,
-      closeSocket: () => {}
+      closeSocket: () => {},
+      set: new Set<number>,
+      setEdit: new Set<number>
     }
   },
   methods: {
@@ -23,7 +25,6 @@ export default defineComponent({
       if (!this.questions[index].texts.filter(({status}) => status === 0).length) this.questions.splice(index, 1);
     },
     change(message: MessageType) {
-      console.log(message);
       let index = -1;
       this.questions = this.questions.map((question, i) => {
         if (question.id !== message.id) return question;
@@ -38,9 +39,17 @@ export default defineComponent({
     },
     setupWebsocket() {
       this.closeSocket = subscribeAdmin(message => {
+        if (this.set.has(message.id)) {
+          this.set.delete(message.id);
+          return;
+        }
         this.change(message);
         this.$toast.add({summary: `Изменён статус сообщения №${message.id}`});
       }, message => {
+        if (this.setEdit.has(message.id)) {
+          this.setEdit.delete(message.id);
+          return;
+        }
         this.change(message);
         this.$toast.add({summary: `Сообщение №${message.id} изменено администратором`});
       }, message => {
@@ -65,6 +74,6 @@ export default defineComponent({
 </script>
 
 <template>
-  <AdminMain v-model:questions="questions" :statuses="[0]" v-model:pending="pending"/>
+  <AdminMain v-model:questions="questions" :statuses="[0]" v-model:pending="pending" @statusChange="set.add($event)" @adminEdit="setEdit.add($event)"/>
   <PendingIndicator v-if="pending"/>
 </template>

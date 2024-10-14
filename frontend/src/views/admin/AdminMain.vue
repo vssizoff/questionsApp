@@ -25,7 +25,9 @@ export default defineComponent({
   },
   emits: {
     "update:questions"(_: Array<MessageType>) {return true;},
-    "update:pending"(_: boolean) {return true;}
+    "update:pending"(_: boolean) {return true;},
+    "statusChange"(_: number) {return true;},
+    "adminEdit"(_: number) {return true;}
   },
   data() {
     return {
@@ -68,6 +70,7 @@ export default defineComponent({
       let successful = await editMessage(this.questions_[index].id, text);
       this.pending_ = false;
       if (successful) {
+        this.$emit("adminEdit", this.questions_[index].id);
         this.questions_[index].texts.push({
           id: Math.max(...this.questions_[index].texts.map(({id}) => id), 0) + 1,
           text,
@@ -81,6 +84,7 @@ export default defineComponent({
       let successful = await acceptMessage(this.questions_[index].texts[textIndex].id);
       this.pending_ = false;
       if (successful) {
+        this.$emit("statusChange", this.questions_[index].id);
         this.$toast.add({summary: "Request accepted", severity: "success"});
         this.questions_[index].texts[textIndex].status = this.questions_[index].texts[textIndex].status === 2 || this.questions_[index].texts[textIndex].status === -2 ? 2 : 1;
         this.removeQuestion(index);
@@ -92,6 +96,7 @@ export default defineComponent({
       let successful = await rejectMessage(this.questions_[index].texts[textIndex].id);
       this.pending_ = false;
       if (successful) {
+        this.$emit("statusChange", this.questions_[index].id);
         this.$toast.add({summary: "Request rejected", severity: "success"});
         this.questions_[index].texts[textIndex].status = this.questions_[index].texts[textIndex].status === 2 || this.questions_[index].texts[textIndex].status === -2 ? -2 : -1;
         this.removeQuestion(index);
