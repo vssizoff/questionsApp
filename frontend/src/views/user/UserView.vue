@@ -52,7 +52,6 @@ export default defineComponent({
         console.error("Server error");
         return;
       }
-      this.text = "";
       this.questions.push({
         id,
         userId: this.userId,
@@ -64,6 +63,7 @@ export default defineComponent({
           }
         ]
       });
+      this.text = "";
     },
     async edit(index: number, text: string) {
       this.pending = true;
