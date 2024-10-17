@@ -11,5 +11,5 @@ export default defineComponent({
 </script>
 
 <template>
-  <AdminMain :getQuestions="() => getRejectedMessages()"/>
+  <AdminMain :getQuestions="() => getRejectedMessages()" :statuses="[1, 2]"/>
 </template>

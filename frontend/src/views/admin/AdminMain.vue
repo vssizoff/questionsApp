@@ -12,6 +12,10 @@ export default defineComponent({
     getQuestions: {
       type: Object as PropType<() => Promise<Array<MessageType>>>,
       required: true
+    },
+    statuses: {
+      type: Object as PropType<Array<number>>,
+      default: []
     }
   },
   emits: {
@@ -28,7 +32,7 @@ export default defineComponent({
   },
   methods: {
     removeQuestion(index: number) {
-      if (!this.questions[index].texts.filter(({status}) => status === 0).length) this.questions.splice(index, 1);
+      if (!this.questions[index].texts.filter(({status}) => this.statuses.includes(status)).length) this.questions.splice(index, 1);
     },
     change(message: MessageType) {
       let index = -1;
@@ -80,7 +84,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <AdminTemplate v-model:questions="questions" :statuses="[0]" :pending="pending" @update:pending="$emit('update:pending', $event)" @statusChange="set.add($event)" @adminEdit="setEdit.add($event)"/>
+  <AdminTemplate v-model:questions="questions" :statuses="statuses" :pending="pending" @update:pending="$emit('update:pending', $event)" @statusChange="set.add($event)" @adminEdit="setEdit.add($event)"/>
   <PendingIndicator v-if="pending"/>
 </template>
 

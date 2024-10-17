@@ -11,5 +11,5 @@ export default defineComponent({
 </script>
 
 <template>
-  <AdminMain :getQuestions="() => getWaitingMessages()"/>
+  <AdminMain :getQuestions="() => getWaitingMessages()" :statuses="[0]"/>
 </template>
