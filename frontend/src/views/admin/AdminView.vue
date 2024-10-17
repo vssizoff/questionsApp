@@ -45,7 +45,10 @@ export default defineComponent({
       <RouterLink to="/admin"><Button severity="warn">Ожидают проверки</Button></RouterLink>
       <RouterLink to="/admin/rejected"><Button severity="danger">Отклонено</Button></RouterLink>
     </nav>
-    <Button severity="danger" @click="adminPassword = ''">Сменить пароль</Button>
+    <div>
+      <Button @click="$toast.removeAllGroups()">Очистить сообщения</Button>
+      <Button severity="danger" @click="adminPassword = ''">Сменить пароль</Button>
+    </div>
   </header>
   <RouterView v-if="adminPassword !== ''"/>
 </template>
@@ -71,7 +74,7 @@ header {
   justify-content: space-evenly;
   margin-bottom: 20px;
 
-  nav {
+  nav, div {
     display: flex;
     gap: 20px;
     justify-content: center;
