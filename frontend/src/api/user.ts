@@ -34,7 +34,16 @@ export function subscribeUser(statusChangeHandler: (_: MessageType) => void, adm
         if (event === "statusChange") statusChangeHandler(message);
         if (event === "edit") adminEditHandler(message);
     };
-    return () => {
+    let close = () => {
         socket.close();
+    };
+    socket.onclose = () => {
+        close = subscribeUser(statusChangeHandler, adminEditHandler, userID);
+    };
+    socket.onerror = () => {
+        close = subscribeUser(statusChangeHandler, adminEditHandler, userID);
+    };
+    return () => {
+        close();
     };
 }

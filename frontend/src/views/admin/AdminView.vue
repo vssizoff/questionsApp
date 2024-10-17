@@ -43,7 +43,7 @@ export default defineComponent({
     <nav>
       <RouterLink to="/admin/accepted"><Button severity="success">Очередь</Button></RouterLink>
       <RouterLink to="/admin"><Button severity="warn">Ожидают проверки</Button></RouterLink>
-      <RouterLink to="/admin/accepted"><Button severity="danger">Отклонено</Button></RouterLink>
+      <RouterLink to="/admin/rejected"><Button severity="danger">Отклонено</Button></RouterLink>
     </nav>
     <Button severity="danger" @click="adminPassword = ''">Сменить пароль</Button>
   </header>

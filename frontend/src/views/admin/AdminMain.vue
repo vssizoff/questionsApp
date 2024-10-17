@@ -1,143 +1,89 @@
 <script lang="ts">
 import {defineComponent, type PropType} from 'vue'
-import AdminQuestion from "@/views/admin/AdminQuestion.vue";
-import Question from "@/components/Question.vue";
-import Button from "primevue/button";
+import PendingIndicator from "@/components/PendingIndicator.vue";
+import AdminTemplate from "@/views/admin/AdminTemplate.vue";
 import type {MessageType} from "@/api/index.js";
-import {acceptMessage, editMessage, rejectMessage} from "@/api/admin.js";
+import {subscribeAdmin} from "@/api/admin.js";
 
 export default defineComponent({
-  name: "AdminMain",
-  components: {AdminQuestion, Question, Button},
+  name: "AdminMain" ,
+  components: {AdminTemplate, PendingIndicator},
   props: {
-    questions: {
-      type: Object as PropType<Array<MessageType>>,
+    getQuestions: {
+      type: Object as PropType<() => Promise<Array<MessageType>>>,
       required: true
-    },
-    statuses: {
-      type: Object as PropType<Array<number>>,
-      default: []
-    },
-    pending: {
-      type: Boolean,
-      default: false
     }
   },
   emits: {
-    "update:questions"(_: Array<MessageType>) {return true;},
-    "update:pending"(_: boolean) {return true;},
-    "statusChange"(_: number) {return true;},
-    "adminEdit"(_: number) {return true;}
+    "update:pending"(_: boolean) {return true;}
   },
   data() {
     return {
-      questions_: [] as Array<MessageType & {editing: boolean}>
-    }
-  },
-  mounted() {
-    this.questions_ = this.questions.map(question => ({...question, editing: false}));
-  },
-  computed: {
-    pending_: {
-      get() {
-        return this.pending;
-      },
-      set(value: boolean) {
-        this.$emit("update:pending", value);
-      }
-    }
-  },
-  watch: {
-    questions_: {
-      deep: true,
-      handler() {
-        this.$emit("update:questions", this.questions_.map(({id, userId, texts}) => ({id, userId, texts})));
-      }
-    },
-    questions(value, oldValue) {
-      if (JSON.stringify(value) !== JSON.stringify(oldValue)) this.questions_ = this.questions.map(question => ({...question, editing: false}));
+      pending: false,
+      questions: [] as Array<MessageType>,
+      closeSocket: () => {},
+      set: new Set<number>,
+      setEdit: new Set<number>
     }
   },
   methods: {
-    error() {
-      this.$toast.add({summary: "Error happened. Is your admin password correct?", severity: "error"});
-    },
     removeQuestion(index: number) {
-      if (!this.questions_[index].texts.filter(({status}) => this.statuses.includes(status)).length) this.questions_.splice(index, 1);
+      if (!this.questions[index].texts.filter(({status}) => status === 0).length) this.questions.splice(index, 1);
     },
-    async edit(index: number, text: string) {
-      this.pending_ = true;
-      let successful = await editMessage(this.questions_[index].id, text);
-      this.pending_ = false;
-      if (successful) {
-        this.$emit("adminEdit", this.questions_[index].id);
-        this.questions_[index].texts.push({
-          id: Math.max(...this.questions_[index].texts.map(({id}) => id), 0) + 1,
-          text,
-          status: 1
-        });
+    change(message: MessageType) {
+      let index = -1;
+      this.questions = this.questions.map((question, i) => {
+        if (question.id !== message.id) return question;
+        index = i;
+        return message;
+      });
+      if (index === -1) {
+        this.questions.push(message);
+        index = this.questions.length - 1;
       }
-      else this.error();
+      this.removeQuestion(index);
     },
-    async accept(index: number, textIndex: number) {
-      this.pending_ = true;
-      let successful = await acceptMessage(this.questions_[index].texts[textIndex].id);
-      this.pending_ = false;
-      if (successful) {
-        this.$emit("statusChange", this.questions_[index].id);
-        this.$toast.add({summary: "Request accepted", severity: "success"});
-        this.questions_[index].texts[textIndex].status = this.questions_[index].texts[textIndex].status === 2 || this.questions_[index].texts[textIndex].status === -2 ? 2 : 1;
-        this.removeQuestion(index);
-      }
-      else this.error();
-    },
-    async reject(index: number, textIndex: number) {
-      this.pending_ = true;
-      let successful = await rejectMessage(this.questions_[index].texts[textIndex].id);
-      this.pending_ = false;
-      if (successful) {
-        this.$emit("statusChange", this.questions_[index].id);
-        this.$toast.add({summary: "Request rejected", severity: "success"});
-        this.questions_[index].texts[textIndex].status = this.questions_[index].texts[textIndex].status === 2 || this.questions_[index].texts[textIndex].status === -2 ? -2 : -1;
-        this.removeQuestion(index);
-      }
-      else this.error();
+    setupWebsocket() {
+      this.closeSocket = subscribeAdmin(message => {
+        if (this.set.has(message.id)) {
+          this.set.delete(message.id);
+          return;
+        }
+        this.change(message);
+        this.$toast.add({summary: `Изменён статус сообщения №${message.id}`});
+      }, message => {
+        if (this.setEdit.has(message.id)) {
+          this.setEdit.delete(message.id);
+          return;
+        }
+        this.change(message);
+        this.$toast.add({summary: `Сообщение №${message.id} изменено администратором`});
+      }, message => {
+        this.change(message);
+        this.$toast.add({summary: `Добавлено сообщения №${message.id}`});
+      }, message => {
+        this.change(message);
+        this.$toast.add({summary: `Сообщение №${message.id} изменено`});
+      });
     }
+  },
+  async mounted() {
+    this.pending = true;
+    this.questions = await this.getQuestions();
+    this.pending = false;
+    this.setupWebsocket();
+  },
+  unmounted() {
+    this.closeSocket();
   }
 })
 </script>
 
 <template>
-  <div class="root">
-    <main>
-      <h2 v-if="!questions.length" v-text="'<Пусто>'"/>
-      <AdminQuestion v-for="(question, i) in questions" :question="question" :pending="pending_" @edit="edit(i, $event)" v-slot="{index, status}">
-        <div class="buttons">
-          <Button severity="danger" :disabled="pending_" @click="reject(i, index)" v-if="status !== -1 || status !== -2">Отклонить</Button>
-          <Button severity="success" :disabled="pending_" @click="accept(i, index)" v-if="status !== 1 || status !== 2">Разрешить</Button>
-        </div>
-      </AdminQuestion>
-    </main>
-  </div>
+  <AdminTemplate v-model:questions="questions" :statuses="[0]" :pending="pending" @update:pending="$emit('update:pending', $event)" @statusChange="set.add($event)" @adminEdit="setEdit.add($event)"/>
+  <PendingIndicator v-if="pending"/>
 </template>
 
 <style scoped>
-.root {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
 
-  main {
-    max-width: 1000px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-}
-
-.buttons {
-  display: flex;
-  gap: 10px;
-}
 </style>
