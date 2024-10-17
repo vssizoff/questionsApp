@@ -46,16 +46,18 @@ export function subscribeAdmin(statusChangeHandler: (_: MessageType) => void, ad
         if (event === "send") userSendHandler(message);
         if (event === "edit") userEditHandler(message);
     };
+    let closed = false;
     let close = () => {
         socket.close();
     };
     socket.onclose = () => {
-        close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
+        if (!closed) close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
     };
     socket.onerror = () => {
-        close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
+        if (!closed) close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
     };
     return () => {
+        closed = true;
         close();
     };
 }
