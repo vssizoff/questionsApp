@@ -73,7 +73,7 @@ export default defineComponent({
       <Tag :value="header" :severity="status > 0 ? 'success' : status < 0 ? 'danger' : 'info'"/>
     </template>
     <h4 v-if="question.texts.length > 1">Последняя версия:</h4>
-    <p @click="editing_ = !editing_">{{text}}</p>
+    <p @click="editing_ = !editing_" class="editable">{{text}}</p>
     <br>
     <footer>
       <Button @click="editing_ = !editing_">Редактировать</Button>
@@ -106,12 +106,17 @@ h4 {
 }
 
 p {
-  cursor: pointer;
   font-size: 18px;
   display: inline-flex;
   overflow-wrap: anywhere;
-  transition: transform .3s ease-in-out;
   text-align: center;
+  margin: 0;
+}
+
+.editable {
+  margin: 10px 0;
+  cursor: pointer;
+  transition: transform .3s ease-in-out;
 
   @media (hover: hover) {
     &:hover {
