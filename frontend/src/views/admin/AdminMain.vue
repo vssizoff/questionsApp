@@ -90,7 +90,3 @@ export default defineComponent({
   </AdminTemplate>
   <PendingIndicator v-if="pending"/>
 </template>
-
-<style scoped>
-
-</style>

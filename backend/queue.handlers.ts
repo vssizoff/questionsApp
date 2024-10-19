@@ -59,9 +59,15 @@ export default buildHandlers({
     ws: {
         async "/queue/ws"(request, response) {
             let connection = await response.accept();
-            queue.eventEmitter.on("change", (queue) => connection.send(JSON.stringify({queue: queue.array})));
-            queue.eventEmitter.on("push", (value) => connection.send(JSON.stringify({push: value})));
-            queue.eventEmitter.on("pop", (value) => connection.send(JSON.stringify({pop: value})));
+            queue.eventEmitter.on("change", async (queue) => {
+                connection.send(JSON.stringify({
+                    event: "queue",
+                    queue: await Promise.all(queue.array.map(async ([id, used]) => ({...await getByTextId(id), used})))
+                }));
+            });
+            queue.eventEmitter.on("push", (index) => connection.send(JSON.stringify({event: "push", index})));
+            queue.eventEmitter.on("pop", (index) => connection.send(JSON.stringify({event: "pop", index})));
+            queue.eventEmitter.on("remove", (id) => connection.send(JSON.stringify({event: "remove", id})));
         }
     }
 });

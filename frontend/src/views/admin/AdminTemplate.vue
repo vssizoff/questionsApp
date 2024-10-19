@@ -114,8 +114,8 @@ export default defineComponent({
       <AdminQuestion v-for="(question, i) in questions" :question="question" :pending="pending_" @edit="edit(i, $event)" v-slot="{index, status}">
         <div class="buttons">
           <slot name="full">
-            <Button severity="danger" :disabled="pending_" @click="reject(i, index)" v-if="status !== -1 || status !== -2">Отклонить</Button>
-            <Button severity="success" :disabled="pending_" @click="accept(i, index)" v-if="status !== 1 || status !== 2">Разрешить</Button>
+            <Button severity="danger" :disabled="pending_" @click="reject(i, index)" v-if="status !== -1 && status !== -2">Отклонить</Button>
+            <Button severity="success" :disabled="pending_" @click="accept(i, index)" v-if="status !== 1 && status !== 2">Разрешить</Button>
             <slot/>
           </slot>
         </div>

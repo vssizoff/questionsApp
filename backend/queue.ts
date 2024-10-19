@@ -5,7 +5,7 @@ import {EventEmitter} from "event-emitter-typescript";
 export class Queue<Type> {
     protected arr: Array<[Type, boolean]> = [];
     protected start = 0;
-    public eventEmitter = new EventEmitter<{change: Queue<Type>, push: number, pop: number}>;
+    public eventEmitter = new EventEmitter<{change: Queue<Type>, push: number, pop: number, remove: number}>;
 
     protected commit() {
         fs.writeFileSync(this.file, JSON.stringify(this.arr), {encoding: "utf8"});
@@ -40,6 +40,12 @@ export class Queue<Type> {
         this.eventEmitter.emit("pop", this.start);
         this.start++;
         return value;
+    }
+
+    public remove(id: number): void {
+        this.arr = this.arr.filter(([item]) => item !== id);
+        this.commit();
+        this.eventEmitter.emit("remove", id);
     }
 }
 

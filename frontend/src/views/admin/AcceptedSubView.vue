@@ -19,5 +19,25 @@ export default defineComponent({
 </script>
 
 <template>
-<QueueQuestion v-for="question in queue" :question="question"/>
+  <div class="root">
+    <main>
+      <QueueQuestion v-for="question in queue" :question="question"/>
+    </main>
+  </div>
 </template>
+
+<style scoped>
+.root {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  main {
+    max-width: 1000px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+</style>

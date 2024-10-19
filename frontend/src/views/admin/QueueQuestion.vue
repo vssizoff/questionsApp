@@ -73,9 +73,9 @@ export default defineComponent({
             <Tag :value="textHeader(id, status)" :severity="status > 0 ? 'success' : status < 0 ? 'danger' : 'info'"/>
           </template>
           <p>{{text}}</p>
-          <div>
-            <Button severity="danger" :disabled="pending_" @click="reject(i)" v-if="status !== -1 || status !== -2">Отклонить</Button>
-            <Button severity="success" :disabled="pending_" @click="accept(i)" v-if="status !== 1 || status !== 2">Разрешить</Button>
+          <div class="buttons">
+            <Button severity="danger" :disabled="pending_" @click="reject(i)" v-if="status !== -1 && status !== -2">Отклонить</Button>
+            <Button severity="success" :disabled="pending_" @click="accept(i)" v-if="status !== 1 && status !== 2">Разрешить</Button>
           </div>
         </Panel>
         <Panel class="editor" header="Редактирование">
@@ -123,5 +123,11 @@ p {
     justify-content: flex-end;
     gap: 10px;
   }
+}
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
 }
 </style>
