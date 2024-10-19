@@ -1,5 +1,6 @@
 import {buildHandlers} from "sbackend";
 import {changeMessageStatus, editMessage, emitter, getMessages} from "./sql/messages.sql.js";
+import {queue} from "./queue.js";
 
 export default buildHandlers({
     get: {
@@ -45,6 +46,7 @@ export default buildHandlers({
                 return;
             }
             await changeMessageStatus(request.body.id, 1);
+            queue.push(request.body.id);
             response.end();
         },
         async "/admin/reject"(request, response) {

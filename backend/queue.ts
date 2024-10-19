@@ -11,7 +11,11 @@ export class Queue<Type> {
     }
 
     public constructor(public file: string) {
-        if (!fs.existsSync(file)) fs.writeFileSync(file, "[]");
+        if (!fs.existsSync(file)) {
+            try {fs.mkdirSync(Path.parse(file).dir, {recursive: true});}
+            catch {}
+            fs.writeFileSync(file, "[]");
+        }
         this.arr = JSON.parse(fs.readFileSync(file, {encoding: "utf8"}));
     }
 
@@ -37,4 +41,4 @@ export class Queue<Type> {
     }
 }
 
-export const queue = new Queue<number>(Path.resolve(process.env.QUEUE_PATH ?? "./queue.json"));
+export const queue = new Queue<number>(Path.resolve(process.env.QUEUE_PATH ?? "./queue/queue.json"));
