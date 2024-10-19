@@ -4,10 +4,11 @@ import type {MessageType} from "@/api/index.js";
 import Panel from "primevue/panel";
 import Button from "primevue/button";
 import TextArea from "@/components/TextArea.vue";
+import Tag from "primevue/tag";
 
 export default defineComponent({
   name: "AdminQuestion",
-  components: {TextArea, Panel, Button},
+  components: {TextArea, Panel, Button, Tag},
   props: {
     question: {
       type: Object as PropType<MessageType>,
@@ -49,7 +50,10 @@ export default defineComponent({
       <Button severity="success" @click="$emit('edit', editText); editing = false" :disabled="pending || !editText.length">Сохранить</Button>
     </span>
   </Panel>
-  <Panel v-for="({status, id, text}, index) in question.texts" :header="header(id, status)">
+  <Panel v-for="({status, id, text}, index) in question.texts">
+    <template #header>
+      <Tag :value="header(id, status)" :severity="status > 0 ? 'success' : status < 0 ? 'danger' : 'info'"/>
+    </template>
     <p>{{text}}</p>
     <slot :index="index" :text="text" :id="id" :status="status"/>
   </Panel>
