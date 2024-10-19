@@ -2,7 +2,7 @@
 import {defineComponent, watch} from "vue";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import {editMessage, getMessages, sendMessage, subscribeUser, userId} from "@/api/user.js";
+import {editMessage, getMessages, sendMessage, subscribeUser, user, userId} from "@/api/user.js";
 import UserLogin from "@/views/user/UserLogin.vue";
 import Textarea from "primevue/textarea";
 import Panel from "primevue/panel";
@@ -27,6 +27,9 @@ export default defineComponent({
     }
   },
   computed: {
+    user() {
+      return user.value;
+    },
     userId: {
       get(): number {return userId.value;},
       set(value: number) {userId.value = value;}
@@ -54,7 +57,7 @@ export default defineComponent({
       }
       this.questions.push({
         id,
-        userId: this.userId,
+        user: user.value,
         texts: [
           {
             id: 0,
@@ -107,7 +110,7 @@ export default defineComponent({
       <TextArea v-model="text"/>
       <Button @click="send" :disabled="!text.length || pending">Отправить</Button>
       <span v-if="!mobile">
-        <Button severity="danger" @click="userId = -1" v-if="userId !== -1" class="logout">Выйти</Button>
+        <Button severity="danger" @click="userId = -1" v-if="userId !== -1" class="logout">Выйти ({{user.username}} {{user.class}})</Button>
       </span>
     </div>
     <div v-if="questions">
@@ -116,7 +119,7 @@ export default defineComponent({
     </div>
   </main>
   <span v-if="mobile">
-    <Button severity="danger" @click="userId = -1" v-if="userId !== -1" class="logout">Выйти</Button>
+    <Button severity="danger" @click="userId = -1" v-if="userId !== -1" class="logout">Выйти ({{user.username}} {{user.class}})</Button>
   </span>
   <PendingIndicator v-if="pending && userId !== -1"/>
 </template>

@@ -2,14 +2,20 @@ import {db} from "./index.sql.js";
 import {getUserId} from "./user.sql.js";
 import {EventEmitter} from "event-emitter-typescript";
 
+export type TextType = {
+    id: number,
+    text: string,
+    status: number
+}
+
 export type MessageType = {
     id: number,
-    userId: number,
-    texts: Array<{
+    user: {
         id: number,
-        text: string,
-        status: number
-    }>;
+        username: string,
+        class: string
+    },
+    texts: Array<TextType>;
 };
 
 export type Events = {
@@ -24,7 +30,7 @@ export const emitter = new EventEmitter<Events>;
 export async function getMessage(id: number): Promise<MessageType> {
     let {userId} = await db.selectFrom("questions").where("id", '=', id).select(["userId"]).executeTakeFirstOrThrow();
     let texts = await db.selectFrom("texts").where("questionId", '=', id).select(["id", "text", "status"]).orderBy("number", "asc").execute();
-    return {id, userId, texts};
+    return {id, user: await db.selectFrom("users").where("id", '=', userId).selectAll().executeTakeFirstOrThrow(), texts};
 }
 
 export async function postMessage(text: string, user: number | string): Promise<number> {
@@ -61,4 +67,9 @@ export async function getMessages(status: -2 | -1 | 0 | 1 | 2): Promise<Array<Me
 export async function changeMessageStatus(id: number, status: -2 | -1 | 0 | 1 | 2): Promise<void> {
     let {questionId} = await db.updateTable("texts").where("id", '=', id).set({status}).returning(["questionId"]).executeTakeFirst() ?? {};
     if (questionId) getMessage(questionId).then(message => emitter.emit("statusChange", message));
+}
+
+export async function getByTextId(id: number): Promise<MessageType & {text: TextType}> {
+    let {text, status, questionId} = await db.selectFrom("texts").where("id", '=', id).select(["text", "status", "questionId"]).executeTakeFirstOrThrow();
+    return {...await getMessage(questionId), text: {id, text, status}};
 }

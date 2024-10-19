@@ -51,7 +51,7 @@ export default defineComponent({
     questions_: {
       deep: true,
       handler() {
-        this.$emit("update:questions", this.questions_.map(({id, userId, texts}) => ({id, userId, texts})));
+        this.$emit("update:questions", this.questions_.map(({id, user, texts}) => ({id, user, texts})));
       }
     },
     questions(value, oldValue) {
@@ -113,8 +113,11 @@ export default defineComponent({
       <h2 v-if="!questions.length && !pending_" v-text="'<Пусто>'"/>
       <AdminQuestion v-for="(question, i) in questions" :question="question" :pending="pending_" @edit="edit(i, $event)" v-slot="{index, status}">
         <div class="buttons">
-          <Button severity="danger" :disabled="pending_" @click="reject(i, index)" v-if="status !== -1 || status !== -2">Отклонить</Button>
-          <Button severity="success" :disabled="pending_" @click="accept(i, index)" v-if="status !== 1 || status !== 2">Разрешить</Button>
+          <slot name="full">
+            <Button severity="danger" :disabled="pending_" @click="reject(i, index)" v-if="status !== -1 || status !== -2">Отклонить</Button>
+            <Button severity="success" :disabled="pending_" @click="accept(i, index)" v-if="status !== 1 || status !== 2">Разрешить</Button>
+            <slot/>
+          </slot>
         </div>
       </AdminQuestion>
     </main>

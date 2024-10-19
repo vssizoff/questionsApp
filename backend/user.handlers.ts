@@ -60,10 +60,10 @@ export default buildHandlers({
             }
             const connection = await response.accept(), userId = Number(request.params.userId);
             emitter.on("statusChange", message => {
-                if (message.userId === userId) connection.send(JSON.stringify({event: "statusChange", message}));
+                if (message.user.id === userId) connection.send(JSON.stringify({event: "statusChange", message}));
             });
             emitter.on("adminEdit", message => {
-                if (message.userId === userId) connection.send(JSON.stringify({event: "edit", message}));
+                if (message.user.id === userId) connection.send(JSON.stringify({event: "edit", message}));
             });
         }
     }

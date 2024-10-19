@@ -1,15 +1,16 @@
 import {buildHandlers} from "sbackend";
 import {queue} from "./queue.js";
+import {getByTextId} from "./sql/messages.sql.js";
 
 export default buildHandlers({
     get: {
-        "/queue"(request, response) {
-            response.end(queue.array);
+        async "/queue"(request, response) {
+            response.end(await Promise.all(queue.array.map(async ([id, used]) => ({...await getByTextId(id), used}))));
         }
     },
     post: {
         "/queue"(request, response) {
-            if (typeof request.body != "object" || typeof request.body.elem != "number" && typeof request.body.elem != "string" || typeof request.body.password != "string") {
+            if (typeof request.body != "object" || typeof request.body.elem != "number" || typeof request.body.password != "string") {
                 response.status(400);
                 response.end();
                 return;
@@ -36,6 +37,22 @@ export default buildHandlers({
                 return;
             }
             queue.array = request.body.queue;
+            response.end();
+        }
+    },
+    delete: {
+        "/queue"(request, response) {
+            if (typeof request.body != "object" || typeof request.body.password != "string") {
+                response.status(400);
+                response.end();
+                return;
+            }
+            if (request.body.password != "4.10.2024") {
+                response.status(409);
+                response.end();
+                return;
+            }
+            queue.pop();
             response.end();
         }
     },

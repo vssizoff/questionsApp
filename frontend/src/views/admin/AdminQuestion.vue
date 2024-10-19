@@ -39,7 +39,7 @@ export default defineComponent({
 
 <template>
   <header>
-    <h2>№{{question.id}}</h2>
+    <h2>№{{question.id}} ({{question.user.username}} {{question.user.class}})</h2>
     <Button @click="editing = !editing">Редактировать</Button>
   </header>
   <Panel class="editor" v-if="editing" header="Редактирование">

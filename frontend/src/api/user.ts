@@ -6,10 +6,15 @@ export const userId = ref<number>(Number(localStorage.getItem("userId") ?? -1));
 watch(userId, () => {
     localStorage.setItem("userId", String(userId.value));
 });
+export const user = ref<{id: number, username: string, class: string}>(JSON.parse(localStorage.getItem("user") ?? "{}"));
+watch(user, () => {
+    localStorage.setItem("user", JSON.stringify(user.value));
+});
 
 export async function logIn(username: string, class_: string): Promise<void> {
     let data = await axios.post<number>("/user/log-in", {username, class: class_});
     userId.value = data.data;
+    user.value = {id: data.data, username, class: class_};
 }
 
 export async function getMessages(userID: number = userId.value): Promise<Array<MessageType>> {

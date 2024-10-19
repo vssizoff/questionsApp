@@ -84,7 +84,10 @@ export default defineComponent({
 </script>
 
 <template>
-  <AdminTemplate v-model:questions="questions" :statuses="statuses" :pending="pending" @update:pending="$emit('update:pending', $event)" @statusChange="set.add($event)" @adminEdit="setEdit.add($event)"/>
+  <AdminTemplate v-model:questions="questions" :statuses="statuses" :pending="pending" @update:pending="$emit('update:pending', $event)" @statusChange="set.add($event)" @adminEdit="setEdit.add($event)">
+    <template #full><slot name="full"/></template>
+    <slot/>
+  </AdminTemplate>
   <PendingIndicator v-if="pending"/>
 </template>
 

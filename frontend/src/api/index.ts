@@ -1,11 +1,17 @@
 export const SERVER_BASE_URL = "http://localhost:80/api";
 
+export type TextType = {
+    id: number,
+    text: string,
+    status: number
+}
+
 export type MessageType = {
     id: number,
-    userId: number,
-    texts: Array<{
+    user: {
         id: number,
-        text: string,
-        status: number
-    }>;
+        username: string,
+        class: string
+    },
+    texts: Array<TextType>;
 };
