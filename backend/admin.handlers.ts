@@ -61,6 +61,7 @@ export default buildHandlers({
                 return;
             }
             await changeMessageStatus(request.body.id, -1);
+            queue.remove(request.body.id);
             response.end();
         }
     },

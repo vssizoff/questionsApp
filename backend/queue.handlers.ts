@@ -42,12 +42,12 @@ export default buildHandlers({
     },
     delete: {
         "/queue"(request, response) {
-            if (typeof request.body != "object" || typeof request.body.password != "string") {
+            if (typeof request.query.password != "string") {
                 response.status(400);
                 response.end();
                 return;
             }
-            if (request.body.password != "4.10.2024") {
+            if (request.query.password != "4.10.2024") {
                 response.status(409);
                 response.end();
                 return;
