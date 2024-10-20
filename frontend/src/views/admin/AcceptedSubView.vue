@@ -78,7 +78,8 @@ export default defineComponent({
 <template>
   <div class="root">
     <main>
-      <Button @click="next">Следующий вопрос</Button>
+      <Button v-if="queue.length" @click="next">Следующий вопрос</Button>
+      <h2 v-if="!queue.length" v-text="'<Пусто>'"/>
       <QueueQuestion v-for="(question, index) in queue" :question="question" @moveUp="moveUp(index)" @moveDown="moveDown(index)"/>
     </main>
   </div>
