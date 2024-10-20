@@ -63,7 +63,7 @@ export default defineComponent({
         this.queue = this.queue.map(({texts, ...other}) => ({...other, texts: texts.map(({id: ID, text, status}) => (ID === id ? {id, text, status: -1} : {id: ID, text, status}))}));
         this.$toast.add({summary: "Вопрос удалён"});
       }, (from, to) => {
-        this.queue = this.queue.map(({id, ...other}) => id === from ? to : {id, ...other});
+        this.queue = this.queue.map(elem => elem.text.id === from ? to : elem);
         this.$toast.add({summary: "Вопрос заменён"});
       });
     }
