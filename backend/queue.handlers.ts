@@ -1,6 +1,6 @@
 import {buildHandlers} from "sbackend";
 import {queue} from "./queue.js";
-import {getByTextId} from "./sql/messages.sql.js";
+import {editMessage, getByTextId} from "./sql/messages.sql.js";
 
 export default buildHandlers({
     get: {
@@ -9,8 +9,8 @@ export default buildHandlers({
         }
     },
     post: {
-        "/queue"(request, response) {
-            if (typeof request.body != "object" || typeof request.body.elem != "number" || typeof request.body.password != "string") {
+        async "/queue"(request, response) {
+            if (typeof request.body !== "object" || typeof request.body.questionId !== "number" || typeof request.body.textId !== "number" || typeof request.body.text !== "string" || typeof request.body.password !== "string") {
                 response.status(400);
                 response.end();
                 return;
@@ -20,8 +20,13 @@ export default buildHandlers({
                 response.end();
                 return;
             }
-            queue.push(Number(request.body.elem));
-            response.end();
+            try {
+                queue.replace(request.body.textId, await editMessage(request.body.text, request.body.questionId, true));
+                response.end();
+            } catch (error) {
+                response.status(404);
+                response.end();
+            }
         }
     },
     patch: {
@@ -61,13 +66,14 @@ export default buildHandlers({
             let connection = await response.accept();
             queue.eventEmitter.on("change", async (queue) => {
                 connection.send(JSON.stringify({
-                    event: "queue",
+                    event: "change",
                     queue: await Promise.all(queue.array.map(async ([id, used]) => ({...await getByTextId(id), used})))
                 }));
             });
-            queue.eventEmitter.on("push", (index) => connection.send(JSON.stringify({event: "push", index})));
-            queue.eventEmitter.on("pop", (index) => connection.send(JSON.stringify({event: "pop", index})));
+            queue.eventEmitter.on("push", async (id) => connection.send(JSON.stringify({event: "push", elem: await getByTextId(id)})));
+            queue.eventEmitter.on("pop", () => connection.send(JSON.stringify({event: "pop"})));
             queue.eventEmitter.on("remove", (id) => connection.send(JSON.stringify({event: "remove", id})));
+            queue.eventEmitter.on("replace", async ([from, to]) => connection.send(JSON.stringify({event: "remove", from, to: await getByTextId(to)})));
         }
     }
 });

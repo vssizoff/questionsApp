@@ -1,7 +1,6 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import type {MessageType, TextType} from "@/api/index.js";
-import {getQueue, patchQueue, popQueue} from "@/api/queue.js";
+import {getQueue, patchQueue, popQueue, type QueueMessageType, subscribeQueue} from "@/api/queue.js";
 import QueueQuestion from "@/views/admin/QueueQuestion.vue";
 import Button from "primevue/button";
 
@@ -10,11 +9,13 @@ export default defineComponent({
   components: {QueueQuestion, Button},
   data() {
     return {
-      queue: [] as Array<MessageType & {text: TextType, used: boolean}>
+      queue: [] as Array<QueueMessageType>,
+      closeWebsocket: () => {}
     }
   },
   async mounted() {
     this.queue = await getQueue();
+    this.setupWebsocket();
   },
   methods: {
     commit() {
@@ -41,7 +42,35 @@ export default defineComponent({
         break;
       }
       popQueue();
+    },
+    setupWebsocket() {
+      console.log("test");
+      this.closeWebsocket = subscribeQueue((queue) => {
+        this.queue = queue;
+        this.$toast.add({summary: "Порядок вопросов изменён"});
+      }, (elem) => {
+        this.queue.push(elem);
+        this.$toast.add({summary: "Добавлен вопрос"});
+      }, () => {
+        console.log("pop");
+        for (let i = 0; i < this.queue.length; i++) {
+          if (this.queue[i].used) continue;
+          this.queue[i].used = true;
+          break;
+        }
+        this.$toast.add({summary: "Вопрос отвечен"});
+      }, (id) => {
+        this.queue = this.queue.filter(({text: {id: ID}}) => ID !== id);
+        this.$toast.add({summary: "Вопрос удалён"});
+      }, (from, to) => {
+        console.log(from, to);
+        this.queue = this.queue.map(({id, ...other}) => id === from ? to : {id, ...other});
+        this.$toast.add({summary: "Вопрос заменён"});
+      });
     }
+  },
+  unmounted() {
+    this.closeWebsocket();
   }
 })
 </script>

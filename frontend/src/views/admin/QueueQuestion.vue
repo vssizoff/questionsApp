@@ -1,6 +1,5 @@
 <script lang="ts">
 import {defineComponent, type PropType} from 'vue'
-import type {MessageType, TextType} from "@/api/index.js";
 import Panel from "primevue/panel";
 import Button from "primevue/button";
 import Drawer from "primevue/drawer";
@@ -9,13 +8,14 @@ import TextArea from '@/components/TextArea.vue';
 import {acceptMessage, editMessage, rejectMessage} from "@/api/admin.js";
 import upward from "@/assets/upward.svg";
 import downward from "@/assets/downward.svg";
+import type {QueueMessageType} from "@/api/queue.js";
 
 export default defineComponent({
   name: "QueueQuestion",
   components: {Panel, Button, Drawer, Tag, TextArea},
   props: {
     question: {
-      type: Object as PropType<MessageType & {text: TextType, used: boolean}>,
+      type: Object as PropType<QueueMessageType>,
       required: true
     }
   },

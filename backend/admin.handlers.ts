@@ -27,7 +27,7 @@ export default buildHandlers({
                 return;
             }
             try {
-                await editMessage(request.body.text, request.body.questionId, true);
+                queue.push(await editMessage(request.body.text, request.body.questionId, true));
                 response.end();
             } catch (error) {
                 response.status(404);

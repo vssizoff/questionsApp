@@ -46,13 +46,14 @@ export async function postMessage(text: string, user: number | string): Promise<
     return questionId;
 }
 
-export async function editMessage(text: string, questionId: number, isAdmin = false): Promise<void> {
+export async function editMessage(text: string, questionId: number, isAdmin = false): Promise<number> {
     let {count} = await db.selectFrom("questions").where("id", '=', questionId).select(["count"]).executeTakeFirstOrThrow();
     await db.updateTable("questions").where("id", '=', questionId).set({count: count + 1}).execute();
     await db.updateTable("texts").set({status: 2}).where(({and, eb}) => and([eb("questionId", '=', questionId), eb("status", '=', 1)])).execute();
     await db.updateTable("texts").set({status: -2}).where(({and, eb}) => and([eb("questionId", '=', questionId), eb("status", '=', -1)])).execute();
-    await db.insertInto("texts").values({questionId, text, number: count, status: isAdmin ? 1 : 0}).execute();
+    let {id} = await db.insertInto("texts").values({questionId, text, number: count, status: isAdmin ? 1 : 0}).returning(["id"]).executeTakeFirstOrThrow();
     getMessage(questionId).then(message => emitter.emit(isAdmin ? "adminEdit" : "userEdit", message));
+    return id;
 }
 
 export async function getUserMessages(userId: number): Promise<Array<MessageType>> {

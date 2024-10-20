@@ -5,7 +5,7 @@ import {EventEmitter} from "event-emitter-typescript";
 export class Queue<Type> {
     protected arr: Array<[Type, boolean]> = [];
     protected start = 0;
-    public eventEmitter = new EventEmitter<{change: Queue<Type>, push: number, pop: number, remove: number}>;
+    public eventEmitter = new EventEmitter<{change: Queue<Type>, push: Type, pop: undefined, remove: Type, replace: [Type, Type]}>;
 
     protected commit() {
         fs.writeFileSync(this.file, JSON.stringify(this.arr), {encoding: "utf8"});
@@ -30,22 +30,33 @@ export class Queue<Type> {
     public push(elem: Type): void {
         this.arr.push([elem, false]);
         this.commit();
-        this.eventEmitter.emit("push", this.arr.length - 1);
+        this.eventEmitter.emit("push", elem);
     }
 
     public pop(): Type {
         let [value] = this.arr[0];
         this.arr[this.start][1] = true;
         this.commit();
-        this.eventEmitter.emit("pop", this.start);
+        this.eventEmitter.emit("pop", undefined);
         this.start++;
         return value;
     }
 
-    public remove(id: number): void {
-        this.arr = this.arr.filter(([item]) => item !== id);
+    public remove(id: Type): void {
+        let found = false;
+        this.arr = this.arr.filter(([item]) => {
+            if (item === id) found = true;
+            return item !== id;
+        });
+        if (!found) return;
         this.commit();
         this.eventEmitter.emit("remove", id);
+    }
+
+    public replace(from: Type, to: Type): void {
+        this.arr = this.arr.map(([elem, used]) => [elem === from ? to : elem, used]);
+        this.commit();
+        this.eventEmitter.emit("replace", [from, to]);
     }
 }
 

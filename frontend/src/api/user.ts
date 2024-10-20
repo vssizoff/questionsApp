@@ -34,20 +34,23 @@ export async function editMessage(questionId: number, text: string): Promise<boo
 
 export function subscribeUser(statusChangeHandler: (_: MessageType) => void, adminEditHandler: (_: MessageType) => void, userID: number = userId.value): () => void {
     let socket = new WebSocket(`${SERVER_BASE_URL}/user/${userID}`);
+    let closed = false, reconnected = false;
     socket.onmessage = (data) => {
+        if (reconnected) return;
         let {event, message} = JSON.parse(data.data);
         if (event === "statusChange") statusChangeHandler(message);
         if (event === "edit") adminEditHandler(message);
     };
-    let closed = false;
     let close = () => {
         socket.close();
     };
     socket.onclose = () => {
-        if (!closed) close = subscribeUser(statusChangeHandler, adminEditHandler, userID);
+        if (!closed && !reconnected) close = subscribeUser(statusChangeHandler, adminEditHandler, userID);
+        reconnected = true;
     };
     socket.onerror = () => {
-        if (!closed) close = subscribeUser(statusChangeHandler, adminEditHandler, userID);
+        if (!closed && !reconnected) close = subscribeUser(statusChangeHandler, adminEditHandler, userID);
+        reconnected = true;
     };
     return () => {
         closed = true;

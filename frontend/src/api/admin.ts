@@ -39,22 +39,25 @@ export async function rejectMessage(id: number, password: string = adminPassword
 
 export function subscribeAdmin(statusChangeHandler: (_: MessageType) => void, adminEditHandler: (_: MessageType) => void, userSendHandler: (_: MessageType) => void, userEditHandler: (_: MessageType) => void): () => void {
     let socket = new WebSocket(`${SERVER_BASE_URL}/admin`);
+    let closed = false, reconnected = false;
     socket.onmessage = (data) => {
+        if (reconnected) return;
         let {event, message} = JSON.parse(data.data);
         if (event === "statusChange") statusChangeHandler(message);
         if (event === "adminEdit") adminEditHandler(message);
         if (event === "send") userSendHandler(message);
         if (event === "edit") userEditHandler(message);
     };
-    let closed = false;
     let close = () => {
         socket.close();
     };
     socket.onclose = () => {
-        if (!closed) close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
+        if (!closed && !reconnected) close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
+        reconnected = true;
     };
     socket.onerror = () => {
-        if (!closed) close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
+        if (!closed && !reconnected) close = subscribeAdmin(statusChangeHandler, adminEditHandler, userSendHandler, userEditHandler);
+        reconnected = true;
     };
     return () => {
         closed = true;
