@@ -44,15 +44,14 @@ export default defineComponent({
       popQueue();
     },
     setupWebsocket() {
-      console.log("test");
       this.closeWebsocket = subscribeQueue((queue) => {
         this.queue = queue;
         this.$toast.add({summary: "Порядок вопросов изменён"});
       }, (elem) => {
+        this.queue = this.queue.map(({id, text, used, ...other}) => (id === elem.id ? {...elem, text, used} : {id, text, used, ...other}));
         this.queue.push(elem);
         this.$toast.add({summary: "Добавлен вопрос"});
       }, () => {
-        console.log("pop");
         for (let i = 0; i < this.queue.length; i++) {
           if (this.queue[i].used) continue;
           this.queue[i].used = true;
@@ -61,9 +60,9 @@ export default defineComponent({
         this.$toast.add({summary: "Вопрос отвечен"});
       }, (id) => {
         this.queue = this.queue.filter(({text: {id: ID}}) => ID !== id);
+        this.queue = this.queue.map(({texts, ...other}) => ({...other, texts: texts.map(({id: ID, text, status}) => (ID === id ? {id, text, status: -1} : {id: ID, text, status}))}));
         this.$toast.add({summary: "Вопрос удалён"});
       }, (from, to) => {
-        console.log(from, to);
         this.queue = this.queue.map(({id, ...other}) => id === from ? to : {id, ...other});
         this.$toast.add({summary: "Вопрос заменён"});
       });
