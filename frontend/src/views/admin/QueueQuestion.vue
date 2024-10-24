@@ -118,7 +118,6 @@ p {
   font-size: 18px;
   display: inline-flex;
   overflow-wrap: anywhere;
-  text-align: center;
   margin: 0;
 }
 

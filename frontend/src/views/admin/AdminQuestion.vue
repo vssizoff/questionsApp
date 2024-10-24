@@ -66,6 +66,13 @@ header {
   gap: 20px;
 }
 
+p {
+  font-size: 18px;
+  display: inline-flex;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
 .editor {
   display: flex;
   flex-direction: column;

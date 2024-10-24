@@ -36,7 +36,7 @@ export default defineComponent({
       <InputText id="name-class" v-model="class_"/>
       <label for="name-class">Класс (с буквой)</label>
     </FloatLabel>
-    <Button @click="logIn" :disabled="pending">Войти</Button>
+    <Button @click="logIn" :disabled="pending || !name.length || !class_.length">Войти</Button>
   </div>
 </template>
 
