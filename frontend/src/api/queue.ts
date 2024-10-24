@@ -16,6 +16,10 @@ export async function popQueue(password: string = adminPassword.value): Promise<
     await axios.delete("/queue?password=" + password);
 }
 
+export async function replaceElemInQueue(questionId: number, textId: number, text: string, password: string = adminPassword.value): Promise<void> {
+    await axios.post("/queue", {questionId, textId, text, password});
+}
+
 export function subscribeQueue(changeHandler: (_: Array<QueueMessageType>) => void, pushHandler: (_: QueueMessageType) => void, popHandler: () => void, removeHandler: (_: number) => void, replaceHandler: (_: number, __: QueueMessageType) => void): () => void {
     let socket = new WebSocket(`${SERVER_BASE_URL}/queue/ws`);
     let closed = false, reconnected = false;

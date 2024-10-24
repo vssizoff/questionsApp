@@ -73,7 +73,7 @@ export default buildHandlers({
             queue.eventEmitter.on("push", async (id) => connection.send(JSON.stringify({event: "push", elem: await getByTextId(id)})));
             queue.eventEmitter.on("pop", () => connection.send(JSON.stringify({event: "pop"})));
             queue.eventEmitter.on("remove", (id) => connection.send(JSON.stringify({event: "remove", id})));
-            queue.eventEmitter.on("replace", async ([from, to]) => connection.send(JSON.stringify({event: "remove", from, to: await getByTextId(to)})));
+            queue.eventEmitter.on("replace", async ([from, to]) => connection.send(JSON.stringify({event: "replace", from, to: await getByTextId(to)})));
         }
     }
 });

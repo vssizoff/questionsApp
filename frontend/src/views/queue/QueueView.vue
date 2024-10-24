@@ -1,15 +1,76 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
+import Button from "primevue/button";
+import {getQueue, type QueueMessageType, subscribeQueue} from "@/api/queue.js";
+import QueueQuestion from "@/views/queue/QueueQuestion.vue";
 
 export default defineComponent({
-  name: "QueueView"
+  name: "QueueView",
+  components: {QueueQuestion, Button},
+  data() {
+    return {
+      queue: [] as Array<QueueMessageType>,
+      closeWebsocket: () => {}
+    }
+  },
+  async mounted() {
+    this.queue = await getQueue();
+    this.setupWebsocket();
+  },
+  methods: {
+    setupWebsocket() {
+      this.closeWebsocket = subscribeQueue((queue) => {
+        this.queue = queue;
+        this.$toast.add({summary: "Порядок вопросов изменён"});
+      }, (elem) => {
+        this.queue = this.queue.map(({id, text, used, ...other}) => (id === elem.id ? {...elem, text, used} : {id, text, used, ...other}));
+        this.queue.push(elem);
+        this.$toast.add({summary: "Добавлен вопрос"});
+      }, () => {
+        for (let i = 0; i < this.queue.length; i++) {
+          if (this.queue[i].used) continue;
+          this.queue[i].used = true;
+          break;
+        }
+        this.$toast.add({summary: "Вопрос отвечен"});
+      }, (id) => {
+        this.queue = this.queue.filter(({text: {id: ID}}) => ID !== id);
+        this.queue = this.queue.map(({texts, ...other}) => ({...other, texts: texts.map(({id: ID, text, status}) => (ID === id ? {id, text, status: -1} : {id: ID, text, status}))}));
+        this.$toast.add({summary: "Вопрос удалён"});
+      }, (from, to) => {
+        this.queue = this.queue.map(elem => elem.text.id === from ? to : elem);
+        this.queue = this.queue.map(({id, text, used, ...other}) => (id === to.id ? {...to, text, used} : {id, text, used, ...other}));
+        this.$toast.add({summary: "Вопрос заменён"});
+      });
+    }
+  },
+  unmounted() {
+    this.closeWebsocket();
+  }
 })
 </script>
 
 <template>
-
+  <div class="root">
+    <main>
+      <h2 v-if="!queue.length" v-text="'<Пусто>'"/>
+      <QueueQuestion v-for="question in queue" :question="question"/>
+    </main>
+  </div>
 </template>
 
 <style scoped>
+.root {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 
+  main {
+    max-width: 1000px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
 </style>

@@ -5,10 +5,10 @@ import Button from "primevue/button";
 import Drawer from "primevue/drawer";
 import Tag from "primevue/tag";
 import TextArea from '@/components/TextArea.vue';
-import {acceptMessage, editMessage, rejectMessage} from "@/api/admin.js";
+import {acceptMessage, rejectMessage} from "@/api/admin.js";
 import upward from "@/assets/upward.svg";
 import downward from "@/assets/downward.svg";
-import type {QueueMessageType} from "@/api/queue.js";
+import {type QueueMessageType, replaceElemInQueue} from "@/api/queue.js";
 
 export default defineComponent({
   name: "QueueQuestion",
@@ -65,17 +65,8 @@ export default defineComponent({
     },
     async edit() {
       this.pending_ = true;
-      let successful = await editMessage(this.question_.id, this.editText);
+      await replaceElemInQueue(this.question_.id, this.question_.text.id, this.editText);
       this.pending_ = false;
-      if (successful) {
-        // this.$emit("adminEdit", this.question_.id);
-        this.question_.texts.push({
-          id: Math.max(...this.question_.texts.map(({id}) => id), 0) + 1,
-          text: this.editText,
-          status: 1
-        });
-      }
-      else this.error();
     }
   }
 })

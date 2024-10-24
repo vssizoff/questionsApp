@@ -64,6 +64,7 @@ export default defineComponent({
         this.$toast.add({summary: "Вопрос удалён"});
       }, (from, to) => {
         this.queue = this.queue.map(elem => elem.text.id === from ? to : elem);
+        this.queue = this.queue.map(({id, text, used, ...other}) => (id === to.id ? {...to, text, used} : {id, text, used, ...other}));
         this.$toast.add({summary: "Вопрос заменён"});
       });
     }
