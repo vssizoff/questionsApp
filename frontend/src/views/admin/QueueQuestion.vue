@@ -9,6 +9,7 @@ import {acceptMessage, rejectMessage} from "@/api/admin.js";
 import upward from "@/assets/upward.svg";
 import downward from "@/assets/downward.svg";
 import {type QueueMessageType, replaceElemInQueue} from "@/api/queue.js";
+import question from "@/components/Question.vue";
 
 export default defineComponent({
   name: "QueueQuestion",
@@ -67,6 +68,14 @@ export default defineComponent({
       this.pending_ = true;
       await replaceElemInQueue(this.question_.id, this.question_.text.id, this.editText);
       this.pending_ = false;
+    }
+  },
+  watch: {
+    question: {
+      deep: true,
+      handler() {
+        this.question_ = this.question;
+      }
     }
   }
 })

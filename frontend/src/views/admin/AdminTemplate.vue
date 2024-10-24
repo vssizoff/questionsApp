@@ -54,8 +54,11 @@ export default defineComponent({
         this.$emit("update:questions", this.questions_.map(({id, user, texts}) => ({id, user, texts})));
       }
     },
-    questions(value, oldValue) {
-      if (JSON.stringify(value) !== JSON.stringify(oldValue)) this.questions_ = this.questions.map(question => ({...question, editing: false}));
+    questions: {
+      deep: true,
+      handler(value, oldValue) {
+        if (JSON.stringify(value) !== JSON.stringify(oldValue)) this.questions_ = this.questions.map(question => ({...question, editing: false}));
+      }
     }
   },
   methods: {
