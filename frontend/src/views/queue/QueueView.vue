@@ -21,26 +21,26 @@ export default defineComponent({
     setupWebsocket() {
       this.closeWebsocket = subscribeQueue((queue) => {
         this.queue = queue;
-        this.$toast.add({summary: "Порядок вопросов изменён"});
+        // this.$toast.add({summary: "Порядок вопросов изменён"});
       }, (elem) => {
         this.queue = this.queue.map(({id, text, used, ...other}) => (id === elem.id ? {...elem, text, used} : {id, text, used, ...other}));
         this.queue.push(elem);
-        this.$toast.add({summary: "Добавлен вопрос"});
+        // this.$toast.add({summary: "Добавлен вопрос"});
       }, () => {
         for (let i = 0; i < this.queue.length; i++) {
           if (this.queue[i].used) continue;
           this.queue[i].used = true;
           break;
         }
-        this.$toast.add({summary: "Вопрос отвечен"});
+        // this.$toast.add({summary: "Вопрос отвечен"});
       }, (id) => {
         this.queue = this.queue.filter(({text: {id: ID}}) => ID !== id);
         this.queue = this.queue.map(({texts, ...other}) => ({...other, texts: texts.map(({id: ID, text, status}) => (ID === id ? {id, text, status: -1} : {id: ID, text, status}))}));
-        this.$toast.add({summary: "Вопрос удалён"});
+        // this.$toast.add({summary: "Вопрос удалён"});
       }, (from, to) => {
         this.queue = this.queue.map(elem => elem.text.id === from ? to : elem);
         this.queue = this.queue.map(({id, text, used, ...other}) => (id === to.id ? {...to, text, used} : {id, text, used, ...other}));
-        this.$toast.add({summary: "Вопрос заменён"});
+        // this.$toast.add({summary: "Вопрос заменён"});
       });
     }
   },
