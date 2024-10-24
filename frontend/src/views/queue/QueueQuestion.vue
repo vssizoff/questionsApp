@@ -33,7 +33,7 @@ export default defineComponent({
   <Panel>
     <template #header>
       <header>
-        <h3>Вопрос №{{question.id}} версия №{{question.text.id}}</h3>
+        <h3>Вопрос №{{question.id}} версия №{{question.text.id}} от {{question.user.username}} {{question.user.class}}</h3>
         <Tag value="Отвечено" v-if="question.used"/>
       </header>
     </template>

@@ -40,7 +40,7 @@ export default defineComponent({
 
 <template>
   <header>
-    <h2>№{{question.id}} ({{question.user.username}} {{question.user.class}})</h2>
+    <h2>№{{question.id}} от {{question.user.username}} {{question.user.class}}</h2>
     <Button @click="editing = !editing">Редактировать</Button>
   </header>
   <Panel class="editor" v-if="editing" header="Редактирование">
@@ -70,7 +70,7 @@ p {
   font-size: 18px;
   display: inline-flex;
   overflow-wrap: anywhere;
-  margin: 0;
+  margin: 0 0 20px 0;
 }
 
 .editor {
